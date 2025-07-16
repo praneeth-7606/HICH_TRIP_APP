@@ -463,15 +463,6 @@
   z-index: 2;
 }
 
-/* Plain white background for content sections */
-.contentSection {
-  background: white;
-  border-radius: 20px 20px 0 0;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
-}
-
 /* Interactive Elements */
 .heartButton {
   transition: all 0.3s ease;

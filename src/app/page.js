@@ -224,7 +224,7 @@ import './styles/globals.css';
 // Updated theme to match HICH branding
 const theme = {
   token: {
-    colorPrimary: '#FA8C16', // HICH orange color
+    colorPrimary: '#FF973D', // Updated to your color
     colorBgContainer: '#FFFFFF',
     borderRadius: 15,
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -243,7 +243,7 @@ const theme = {
       fontSize: 14,
     },
     Progress: {
-      strokeColor: '#FA8C16',
+      strokeColor: '#FF973D',
     },
     Modal: {
       borderRadius: 15,
@@ -255,7 +255,8 @@ const theme = {
 const STORAGE_KEYS = {
   ONBOARDING_COMPLETED: 'hich_onboarding_completed',
   USER_PREFERENCES: 'hich_user_preferences',
-  LAST_VISIT: 'hich_last_visit'
+  LAST_VISIT: 'hich_last_visit',
+  APP_STATE: 'hich_app_state' // Added for development persistence
 };
 
 const storePreferences = (preferences) => {
@@ -290,59 +291,116 @@ const clearAllData = () => {
   });
 };
 
-function App() {
-  // Existing state
-  const [showReels, setShowReels] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(true);
-  const [userPreferences, setUserPreferences] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+// Store app state for development persistence
+const storeAppState = (state) => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.APP_STATE, JSON.stringify(state));
+  } catch (error) {
+    console.error('Error storing app state:', error);
+  }
+};
 
-  // New state for reels navigation
-  const [currentView, setCurrentView] = useState('onboarding'); // 'onboarding', 'reels', 'tagged', 'details', 'discovery'
+const getStoredAppState = () => {
+  try {
+    const state = localStorage.getItem(STORAGE_KEYS.APP_STATE);
+    return state ? JSON.parse(state) : null;
+  } catch (error) {
+    console.error('Error getting stored app state:', error);
+    return null;
+  }
+};
+
+function App() {
+  // Initialize state from localStorage to prevent restart issues
+  const [appState, setAppState] = useState(() => {
+    const storedState = getStoredAppState();
+    if (storedState) {
+      return storedState;
+    }
+    return {
+      showReels: false,
+      showOnboarding: true,
+      userPreferences: null,
+      currentView: 'onboarding',
+      isLoading: true
+    };
+  });
+
   const [selectedItem, setSelectedItem] = useState(null);
   const [taggedItems, setTaggedItems] = useState([]);
+
+  // Save app state whenever it changes (for development persistence)
+  useEffect(() => {
+    storeAppState(appState);
+  }, [appState]);
 
   useEffect(() => {
     // Check if user has completed onboarding (client-side only)
     const checkOnboardingStatus = () => {
       try {
-        const completed = localStorage.getItem('hich_onboarding_completed');
-        const preferences = localStorage.getItem('hich_user_preferences');
+        const completed = hasCompletedOnboarding();
+        const preferences = getStoredPreferences();
         
-        if (completed === 'true' && preferences) {
-          setShowOnboarding(false);
-          setUserPreferences(JSON.parse(preferences));
-          setCurrentView('discovery'); // Go directly to discovery if onboarding is complete
+        if (completed && preferences) {
+          setAppState(prev => ({
+            ...prev,
+            showOnboarding: false,
+            userPreferences: preferences,
+            currentView: 'discovery',
+            isLoading: false
+          }));
         } else {
-          setCurrentView('onboarding');
+          setAppState(prev => ({
+            ...prev,
+            currentView: 'onboarding',
+            isLoading: false
+          }));
         }
       } catch (error) {
         console.error('Error checking onboarding status:', error);
-        setCurrentView('onboarding');
-      } finally {
-        setIsLoading(false);
+        setAppState(prev => ({
+          ...prev,
+          currentView: 'onboarding',
+          isLoading: false
+        }));
       }
     };
 
-    checkOnboardingStatus();
-  }, []);
+    // Only check if we haven't already determined the state
+    if (appState.isLoading) {
+      checkOnboardingStatus();
+    }
+  }, [appState.isLoading]);
 
   const handleOnboardingComplete = (preferences) => {
     try {
-      setUserPreferences(preferences);
-      setShowOnboarding(false);
-      setShowReels(true);
-      setCurrentView('reels'); // Show reels after onboarding
+      // FIXED: Actually store the preferences
+      const stored = storePreferences(preferences);
       
-      console.log('User completed onboarding with preferences:', preferences);
+      if (stored) {
+        setAppState(prev => ({
+          ...prev,
+          userPreferences: preferences,
+          showOnboarding: false,
+          showReels: true,
+          currentView: 'reels'
+        }));
+        
+        console.log('User completed onboarding with preferences:', preferences);
+      } else {
+        console.error('Failed to store preferences');
+      }
     } catch (error) {
       console.error('Error saving preferences:', error);
     }
   };
 
   const handleReelsClose = () => {
-    setShowReels(false);
-    setCurrentView('discovery');
+    setAppState(prev => ({
+      ...prev,
+      showReels: false,
+      currentView: 'discovery'
+    }));
   };
 
   const handleBack = () => {
@@ -351,51 +409,74 @@ function App() {
   };
 
   const handleContinueToTrips = () => {
-    setShowReels(false);
-    setCurrentView('discovery');
+    setAppState(prev => ({
+      ...prev,
+      showReels: false,
+      currentView: 'discovery'
+    }));
   };
 
   // New handlers for reels navigation
   const handleViewAllTagged = (items) => {
     setTaggedItems(items);
-    setCurrentView('tagged');
+    setAppState(prev => ({
+      ...prev,
+      currentView: 'tagged'
+    }));
   };
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
-    setCurrentView('details');
+    setAppState(prev => ({
+      ...prev,
+      currentView: 'details'
+    }));
   };
 
   const handleBackToReels = () => {
-    setCurrentView('reels');
+    setAppState(prev => ({
+      ...prev,
+      currentView: 'reels'
+    }));
     setSelectedItem(null);
     setTaggedItems([]);
   };
 
   const handleBackToTagged = () => {
-    setCurrentView('tagged');
+    setAppState(prev => ({
+      ...prev,
+      currentView: 'tagged'
+    }));
     setSelectedItem(null);
   };
 
   const handleShowReelsFromDiscovery = () => {
-    setCurrentView('reels');
-    setShowReels(true);
+    setAppState(prev => ({
+      ...prev,
+      currentView: 'reels',
+      showReels: true
+    }));
   };
 
   const resetOnboarding = () => {
     try {
-      localStorage.removeItem('hich_onboarding_completed');
-      localStorage.removeItem('hich_user_preferences');
+      clearAllData();
     } catch (error) {
       console.error('Error clearing data:', error);
     }
-    setShowOnboarding(true);
-    setUserPreferences(null);
-    setCurrentView('onboarding');
+    setAppState({
+      showReels: false,
+      showOnboarding: true,
+      userPreferences: null,
+      currentView: 'onboarding',
+      isLoading: false
+    });
+    setSelectedItem(null);
+    setTaggedItems([]);
   };
 
   // Loading screen while checking onboarding status
-  if (isLoading) {
+  if (appState.isLoading) {
     return (
       <div style={{
         display: 'flex',
@@ -405,27 +486,75 @@ function App() {
         background: 'linear-gradient(135deg, #FDF2E9 0%, #FFE0B2 100%)',
         flexDirection: 'column'
       }}>
+        {/* Replace this with your logo image */}
         <div style={{
-          fontSize: '48px',
-          fontWeight: '900',
-          color: '#FA8C16',
-          letterSpacing: '2px',
-          marginBottom: '20px'
+          width: '120px',
+          height: '120px',
+          background: '#FF973D',
+          borderRadius: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: '30px',
+          position: 'relative',
+          animation: 'logoFloat 2s ease-in-out infinite alternate',
+          boxShadow: '0 10px 30px rgba(255, 151, 61, 0.3)'
         }}>
-          HICH
+          {/* Replace this div with: <img src="/path/to/your/logo.png" alt="HICH" style={{width: '100%', height: '100%', borderRadius: '20px'}} /> */}
+          <div style={{
+            color: 'white',
+            fontSize: '24px',
+            fontWeight: '900',
+            textAlign: 'center',
+            lineHeight: '1'
+          }}>
+            HICH<br/>
+            <span style={{ color: '#FFD700' }}>HICH</span><br/>
+            HICH
+          </div>
+          {/* Speech bubble tail */}
+          <div style={{
+            position: 'absolute',
+            bottom: '-12px',
+            right: '15px',
+            width: '0',
+            height: '0',
+            borderLeft: '20px solid #FF973D',
+            borderBottom: '20px solid transparent'
+          }} />
         </div>
+
+        <div style={{
+          fontSize: '28px',
+          fontWeight: '700',
+          color: '#FF973D',
+          marginBottom: '20px',
+          animation: 'textFade 1.5s ease-in-out infinite alternate'
+        }}>
+          Welcome to HICH
+        </div>
+
         <div style={{
           width: '40px',
           height: '40px',
-          border: '3px solid #FA8C16',
+          border: '3px solid #FF973D',
           borderTop: '3px solid transparent',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite'
         }}></div>
+
         <style>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+          }
+          @keyframes logoFloat {
+            0% { transform: translateY(0px) scale(1); }
+            100% { transform: translateY(-10px) scale(1.05); }
+          }
+          @keyframes textFade {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
           }
         `}</style>
       </div>
@@ -446,22 +575,37 @@ function App() {
   const EnhancedTravelDiscoveryPage = () => (
     <TravelDiscoveryPage 
       onShowReels={handleShowReelsFromDiscovery}
-      userPreferences={userPreferences}
+      userPreferences={appState.userPreferences}
     />
   );
 
   return (
     <ConfigProvider theme={theme}>
       <div className="App">
-        {currentView === 'onboarding' && (
+        {/* Debug panel for development */}
+        <div style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          background: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          padding: '8px',
+          borderRadius: '6px',
+          fontSize: '11px',
+          zIndex: 9999
+        }}>
+          
+        </div>
+
+        {appState.currentView === 'onboarding' && (
           <HichOnboardingFlow onComplete={handleOnboardingComplete} />
         )}
         
-        {currentView === 'reels' && (
+        {appState.currentView === 'reels' && (
           <EnhancedReelsPage />
         )}
         
-        {currentView === 'tagged' && (
+        {appState.currentView === 'tagged' && (
           <TaggedItemsPage
             taggedItems={taggedItems}
             onBack={handleBackToReels}
@@ -470,14 +614,14 @@ function App() {
           />
         )}
         
-        {currentView === 'details' && (
+        {appState.currentView === 'details' && (
           <ItemDetails
             item={selectedItem}
             onBack={handleBackToTagged}
           />
         )}
         
-        {currentView === 'discovery' && (
+        {appState.currentView === 'discovery' && (
           <EnhancedTravelDiscoveryPage />
         )}
       </div>

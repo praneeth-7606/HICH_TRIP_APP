@@ -203,20 +203,22 @@
 
 
 
+// ============================================
+// SOLUTION 1: Fix App.js for Next.js SSR
+// ============================================
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
 import { ConfigProvider } from 'antd';
+import dynamic from 'next/dynamic';
 import TravelDiscoveryPage from './components/travel-discovery/traveldiscoverypage';
 import DestinationPage from './components/destination/destinationpage';
-// import DestinationCard from './components/cards/destinationcard';
 import HichOnboardingFlow from './components/onboarding/hichonboarding';
 import TripPlanningApp from './components/tripplanninginterface';
 import ReelsPage from './components/reels/reelspage';
-// import TaggedItemsPage from './components/reels/TaggedItemsPage';
 import TaggedItemsPage from './components/reels/taggeditems';
 import ItemDetails from './components/itemdetails';
-// import ItemDetails from './components/ItemDetails'; // Adjust path as needed
 import 'antd/dist/reset.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/globals.css';
@@ -224,7 +226,7 @@ import './styles/globals.css';
 // Updated theme to match HICH branding
 const theme = {
   token: {
-    colorPrimary: '#FF973D', // Updated to your color
+    colorPrimary: '#FF973D',
     colorBgContainer: '#FFFFFF',
     borderRadius: 15,
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -251,29 +253,57 @@ const theme = {
   },
 };
 
-// Storage utility functions
+// Storage utility functions - FIXED FOR SSR
 const STORAGE_KEYS = {
   ONBOARDING_COMPLETED: 'hich_onboarding_completed',
   USER_PREFERENCES: 'hich_user_preferences',
   LAST_VISIT: 'hich_last_visit',
-  APP_STATE: 'hich_app_state' // Added for development persistence
+  APP_STATE: 'hich_app_state'
+};
+
+// Safe localStorage functions that work with SSR
+const safeLocalStorage = {
+  getItem: (key) => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.error('Error reading from localStorage:', error);
+      return null;
+    }
+  },
+  setItem: (key, value) => {
+    if (typeof window === 'undefined') return false;
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (error) {
+      console.error('Error writing to localStorage:', error);
+      return false;
+    }
+  },
+  removeItem: (key) => {
+    if (typeof window === 'undefined') return false;
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (error) {
+      console.error('Error removing from localStorage:', error);
+      return false;
+    }
+  }
 };
 
 const storePreferences = (preferences) => {
-  try {
-    localStorage.setItem(STORAGE_KEYS.USER_PREFERENCES, JSON.stringify(preferences));
-    localStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETED, 'true');
-    localStorage.setItem(STORAGE_KEYS.LAST_VISIT, new Date().toISOString());
-    return true;
-  } catch (error) {
-    console.error('Error storing preferences:', error);
-    return false;
-  }
+  const success1 = safeLocalStorage.setItem(STORAGE_KEYS.USER_PREFERENCES, JSON.stringify(preferences));
+  const success2 = safeLocalStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETED, 'true');
+  const success3 = safeLocalStorage.setItem(STORAGE_KEYS.LAST_VISIT, new Date().toISOString());
+  return success1 && success2 && success3;
 };
 
 const getStoredPreferences = () => {
   try {
-    const preferences = localStorage.getItem(STORAGE_KEYS.USER_PREFERENCES);
+    const preferences = safeLocalStorage.getItem(STORAGE_KEYS.USER_PREFERENCES);
     return preferences ? JSON.parse(preferences) : null;
   } catch (error) {
     console.error('Error getting stored preferences:', error);
@@ -282,27 +312,22 @@ const getStoredPreferences = () => {
 };
 
 const hasCompletedOnboarding = () => {
-  return localStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETED) === 'true';
+  return safeLocalStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETED) === 'true';
 };
 
 const clearAllData = () => {
   Object.values(STORAGE_KEYS).forEach(key => {
-    localStorage.removeItem(key);
+    safeLocalStorage.removeItem(key);
   });
 };
 
-// Store app state for development persistence
 const storeAppState = (state) => {
-  try {
-    localStorage.setItem(STORAGE_KEYS.APP_STATE, JSON.stringify(state));
-  } catch (error) {
-    console.error('Error storing app state:', error);
-  }
+  return safeLocalStorage.setItem(STORAGE_KEYS.APP_STATE, JSON.stringify(state));
 };
 
 const getStoredAppState = () => {
   try {
-    const state = localStorage.getItem(STORAGE_KEYS.APP_STATE);
+    const state = safeLocalStorage.getItem(STORAGE_KEYS.APP_STATE);
     return state ? JSON.parse(state) : null;
   } catch (error) {
     console.error('Error getting stored app state:', error);
@@ -311,31 +336,32 @@ const getStoredAppState = () => {
 };
 
 function App() {
-  // Initialize state from localStorage to prevent restart issues
-  const [appState, setAppState] = useState(() => {
-    const storedState = getStoredAppState();
-    if (storedState) {
-      return storedState;
-    }
-    return {
-      showReels: false,
-      showOnboarding: true,
-      userPreferences: null,
-      currentView: 'onboarding',
-      isLoading: true
-    };
+  // FIXED: Initialize state safely for SSR
+  const [appState, setAppState] = useState({
+    showReels: false,
+    showOnboarding: true,
+    userPreferences: null,
+    currentView: 'onboarding',
+    isLoading: true,
+    isClient: false // Add this to track client-side mounting
   });
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [taggedItems, setTaggedItems] = useState([]);
 
-  // Save app state whenever it changes (for development persistence)
+  // FIXED: Handle client-side mounting
   useEffect(() => {
-    storeAppState(appState);
-  }, [appState]);
+    // Mark as client-side mounted
+    setAppState(prev => ({ ...prev, isClient: true }));
+    
+    // Check stored state only after client mount
+    const storedState = getStoredAppState();
+    if (storedState) {
+      setAppState(prev => ({ ...prev, ...storedState, isClient: true }));
+      return;
+    }
 
-  useEffect(() => {
-    // Check if user has completed onboarding (client-side only)
+    // Check onboarding status
     const checkOnboardingStatus = () => {
       try {
         const completed = hasCompletedOnboarding();
@@ -347,13 +373,15 @@ function App() {
             showOnboarding: false,
             userPreferences: preferences,
             currentView: 'discovery',
-            isLoading: false
+            isLoading: false,
+            isClient: true
           }));
         } else {
           setAppState(prev => ({
             ...prev,
             currentView: 'onboarding',
-            isLoading: false
+            isLoading: false,
+            isClient: true
           }));
         }
       } catch (error) {
@@ -361,20 +389,24 @@ function App() {
         setAppState(prev => ({
           ...prev,
           currentView: 'onboarding',
-          isLoading: false
+          isLoading: false,
+          isClient: true
         }));
       }
     };
 
-    // Only check if we haven't already determined the state
-    if (appState.isLoading) {
-      checkOnboardingStatus();
+    checkOnboardingStatus();
+  }, []);
+
+  // Save app state whenever it changes (only on client)
+  useEffect(() => {
+    if (appState.isClient) {
+      storeAppState(appState);
     }
-  }, [appState.isLoading]);
+  }, [appState]);
 
   const handleOnboardingComplete = (preferences) => {
     try {
-      // FIXED: Actually store the preferences
       const stored = storePreferences(preferences);
       
       if (stored) {
@@ -403,11 +435,6 @@ function App() {
     }));
   };
 
-  const handleBack = () => {
-    console.log('Navigate back');
-    // Add your navigation logic here
-  };
-
   const handleContinueToTrips = () => {
     setAppState(prev => ({
       ...prev,
@@ -416,7 +443,6 @@ function App() {
     }));
   };
 
-  // New handlers for reels navigation
   const handleViewAllTagged = (items) => {
     setTaggedItems(items);
     setAppState(prev => ({
@@ -469,14 +495,15 @@ function App() {
       showOnboarding: true,
       userPreferences: null,
       currentView: 'onboarding',
-      isLoading: false
+      isLoading: false,
+      isClient: true
     });
     setSelectedItem(null);
     setTaggedItems([]);
   };
 
-  // Loading screen while checking onboarding status
-  if (appState.isLoading) {
+  // FIXED: Show loading only when appropriate
+  if (!appState.isClient || appState.isLoading) {
     return (
       <div style={{
         display: 'flex',
@@ -486,7 +513,6 @@ function App() {
         background: 'linear-gradient(135deg, #FDF2E9 0%, #FFE0B2 100%)',
         flexDirection: 'column'
       }}>
-        {/* Replace this with your logo image */}
         <div style={{
           width: '120px',
           height: '120px',
@@ -497,10 +523,8 @@ function App() {
           justifyContent: 'center',
           marginBottom: '30px',
           position: 'relative',
-          animation: 'logoFloat 2s ease-in-out infinite alternate',
           boxShadow: '0 10px 30px rgba(255, 151, 61, 0.3)'
         }}>
-          {/* Replace this div with: <img src="/path/to/your/logo.png" alt="HICH" style={{width: '100%', height: '100%', borderRadius: '20px'}} /> */}
           <div style={{
             color: 'white',
             fontSize: '24px',
@@ -512,7 +536,6 @@ function App() {
             <span style={{ color: '#FFD700' }}>HICH</span><br/>
             HICH
           </div>
-          {/* Speech bubble tail */}
           <div style={{
             position: 'absolute',
             bottom: '-12px',
@@ -528,8 +551,7 @@ function App() {
           fontSize: '28px',
           fontWeight: '700',
           color: '#FF973D',
-          marginBottom: '20px',
-          animation: 'textFade 1.5s ease-in-out infinite alternate'
+          marginBottom: '20px'
         }}>
           Welcome to HICH
         </div>
@@ -543,25 +565,17 @@ function App() {
           animation: 'spin 1s linear infinite'
         }}></div>
 
-        <style>{`
+        <style jsx>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-          }
-          @keyframes logoFloat {
-            0% { transform: translateY(0px) scale(1); }
-            100% { transform: translateY(-10px) scale(1.05); }
-          }
-          @keyframes textFade {
-            0% { opacity: 0.7; }
-            100% { opacity: 1; }
           }
         `}</style>
       </div>
     );
   }
 
-  // Enhanced ReelsPage with navigation support
+  // Enhanced components
   const EnhancedReelsPage = () => (
     <ReelsPage 
       onClose={handleReelsClose}
@@ -571,7 +585,6 @@ function App() {
     />
   );
 
-  // Enhanced TravelDiscoveryPage with reels button
   const EnhancedTravelDiscoveryPage = () => (
     <TravelDiscoveryPage 
       onShowReels={handleShowReelsFromDiscovery}
@@ -582,20 +595,8 @@ function App() {
   return (
     <ConfigProvider theme={theme}>
       <div className="App">
-        {/* Debug panel for development */}
-        <div style={{
-          position: 'fixed',
-          top: '10px',
-          right: '10px',
-          background: 'rgba(0,0,0,0.8)',
-          color: 'white',
-          padding: '8px',
-          borderRadius: '6px',
-          fontSize: '11px',
-          zIndex: 9999
-        }}>
-          
-        </div>
+        {/* Debug panel - only show on client */}
+      
 
         {appState.currentView === 'onboarding' && (
           <HichOnboardingFlow onComplete={handleOnboardingComplete} />

@@ -1,10 +1,6 @@
-
-
-'use client'
-
-import React, { useState, useEffect } from 'react'
-import { Button, Modal, Input, DatePicker, Avatar, message, Dropdown, Empty, Card, Badge,Menu, Progress } from 'antd'
-// import { Dropdown,  } from 'antd';
+"use client"
+import React, { useState } from 'react'
+import { Button, Modal, Input, DatePicker, Avatar, message, Dropdown, Empty, Card, Badge, Menu, Progress } from 'antd'
 import { 
   ArrowLeftOutlined, 
   PlusOutlined, 
@@ -24,7 +20,11 @@ import {
   StarFilled,
   DollarOutlined,
   ClockCircleOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  BookOutlined,
+  RobotOutlined,
+  LinkOutlined,
+  SaveOutlined
 } from '@ant-design/icons'
 import { useRouter } from 'next/navigation'
 import dayjs from 'dayjs'
@@ -106,11 +106,12 @@ const MyTripsPage = () => {
   ])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false)
   const [editingTrip, setEditingTrip] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('all')
-  const [viewMode, setViewMode] = useState('cards') // 'cards' or 'list'
-  const [sortBy, setSortBy] = useState('date') // 'date', 'progress', 'budget'
+  const [viewMode, setViewMode] = useState('cards')
+  const [sortBy, setSortBy] = useState('date')
   const [newTrip, setNewTrip] = useState({
     title: '',
     destination: '',
@@ -180,13 +181,9 @@ const MyTripsPage = () => {
     }
   }
 
-
-
-
-
-
   const resetModal = () => {
     setIsModalOpen(false)
+    setIsSelectionModalOpen(false)
     setEditingTrip(null)
     setNewTrip({
       title: '',
@@ -233,11 +230,8 @@ const MyTripsPage = () => {
     message.success(`Trip ${trip.isBookmarked ? 'removed from' : 'added to'} bookmarks`)
   }
 
-//   const handleTripClick = (trip) => {
-//     router.push(`/trip-details/${trip.id}`)
-//   }
-const handleTripClick = (trip) => {
-    router.push(`/trip-planning/${trip.id}`)  // Navigate to trip planning
+  const handleTripClick = (trip) => {
+    router.push(`/trip-planning/${trip.id}`)
   }
 
   const handleShare = (trip) => {
@@ -250,6 +244,20 @@ const handleTripClick = (trip) => {
     } else {
       navigator.clipboard.writeText(window.location.href)
       message.success('Trip link copied to clipboard!')
+    }
+  }
+
+  const handleNewTripClick = () => {
+    setIsSelectionModalOpen(true)
+  }
+
+  const handleSelectionOption = (option) => {
+    setIsSelectionModalOpen(false)
+    if (option === 'form') {
+      setIsModalOpen(true)
+    } else if (option === 'ai') {
+      // Handle AI option - you can add navigation to AI page here
+      message.info('AI Trip Planning feature coming soon!')
     }
   }
 
@@ -525,7 +533,7 @@ const handleTripClick = (trip) => {
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleNewTripClick}
                 style={{
                   backgroundColor: '#FF5722',
                   borderColor: '#FF5722',
@@ -543,14 +551,14 @@ const handleTripClick = (trip) => {
           </div>
         ) : (
           <div 
-  className={viewMode === 'cards' ? 'trip-cards-container' : 'trip-list-container'}
-  style={{
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', // Responsive grid
-    gap: '20px',                    // Space between cards
-    padding: '0 10px'               // Optional: add side padding
-  }}
->
+            className={viewMode === 'cards' ? 'trip-cards-container' : 'trip-list-container'}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '20px',
+              padding: '0 10px'
+            }}
+          >
             {filteredTrips.map((trip) => (
               <div
                 key={trip.id}
@@ -564,7 +572,6 @@ const handleTripClick = (trip) => {
                   cursor: 'pointer',
                   border: '1px solid rgba(255,255,255,0.2)',
                   position: 'relative',
-                  
                 }}
                 className="trip-card"
                 onClick={() => handleTripClick(trip)}
@@ -577,7 +584,7 @@ const handleTripClick = (trip) => {
                   e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)'
                 }}
               >
-                {/* Enhanced Trip Image Header */}
+                {/* Trip Image Header */}
                 <div style={{ position: 'relative', height: '180px' }}>
                   <img
                     src={trip.image}
@@ -588,15 +595,9 @@ const handleTripClick = (trip) => {
                       objectFit: 'cover',
                       transition: 'transform 0.6s ease'
                     }}
-                    onMouseEnter={(e) => {
-                      e.target.style.transform = 'scale(1.1)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = 'scale(1)'
-                    }}
                   />
                   
-                  {/* Enhanced Gradient Overlay */}
+                  {/* Gradient Overlay */}
                   <div style={{
                     position: 'absolute',
                     top: 0,
@@ -606,7 +607,7 @@ const handleTripClick = (trip) => {
                     background: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 50%, rgba(255,87,34,0.1) 100%)'
                   }} />
 
-                  {/* Enhanced Status Badge */}
+                  {/* Status Badge */}
                   <div style={{
                     position: 'absolute',
                     top: '16px',
@@ -645,7 +646,7 @@ const handleTripClick = (trip) => {
                     </div>
                   </div>
 
-                  {/* Enhanced Actions */}
+                  {/* Actions */}
                   <div style={{
                     position: 'absolute',
                     top: '16px',
@@ -692,7 +693,7 @@ const handleTripClick = (trip) => {
                     </Dropdown>
                   </div>
 
-                  {/* Enhanced Progress Bar */}
+                  {/* Progress Bar */}
                   <div style={{
                     position: 'absolute',
                     bottom: 0,
@@ -711,7 +712,7 @@ const handleTripClick = (trip) => {
                   </div>
                 </div>
 
-                {/* Enhanced Trip Content */}
+                {/* Trip Content */}
                 <div style={{ padding: '24px' }}>
                   <div className="d-flex justify-content-between align-items-start mb-3">
                     <div style={{ flex: 1 }}>
@@ -761,7 +762,7 @@ const handleTripClick = (trip) => {
                     </div>
                   </div>
 
-                  {/* Enhanced Trip Details */}
+                  {/* Trip Details */}
                   <div className="d-flex justify-content-between align-items-center mb-4">
                     <div className="d-flex align-items-center gap-4">
                       <div style={{ 
@@ -798,7 +799,7 @@ const handleTripClick = (trip) => {
                     </div>
                   </div>
 
-                  {/* Enhanced Progress Section */}
+                  {/* Progress Section */}
                   <div style={{ marginBottom: '16px' }}>
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <span style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
@@ -824,7 +825,7 @@ const handleTripClick = (trip) => {
                     />
                   </div>
 
-                  {/* Enhanced Collaborators */}
+                  {/* Collaborators */}
                   {trip.collaborators.length > 0 && (
                     <div className="d-flex justify-content-between align-items-center">
                       <div className="d-flex align-items-center gap-2">
@@ -892,7 +893,7 @@ const handleTripClick = (trip) => {
           type="primary"
           shape="round"
           icon={<PlusOutlined />}
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleNewTripClick}
           style={{
             height: '60px',
             paddingLeft: '24px',
@@ -920,6 +921,179 @@ const handleTripClick = (trip) => {
           New Trip
         </Button>
       </div>
+
+      {/* Trip Creation Method Selection Modal */}
+      <Modal
+        title={
+          <div style={{ 
+            fontSize: '18px', 
+            fontWeight: '600',
+            color: '#333',
+            textAlign: 'center',
+            borderBottom: '1px solid #f0f0f0',
+            paddingBottom: '16px',
+            marginBottom: '24px'
+          }}>
+            How would you like to plan your trip?
+          </div>
+        }
+        open={isSelectionModalOpen}
+        onCancel={() => setIsSelectionModalOpen(false)}
+        footer={null}
+        width={400}
+        centered
+        maskClosable={true}
+        style={{ borderRadius: '20px' }}
+      >
+        <div style={{ padding: '20px 0' }}>
+          {/* Build from Your Saves Option */}
+          <div
+            onClick={() => handleSelectionOption('form')}
+            style={{
+              backgroundColor: '#f8f9fa',
+              borderRadius: '20px',
+              padding: '20px',
+              marginBottom: '16px',
+              cursor: 'pointer',
+              border: '2px solid transparent',
+              transition: 'all 0.3s ease',
+              position: 'relative'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e9ecef'
+              e.currentTarget.style.borderColor = '#FF5722'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f8f9fa'
+              e.currentTarget.style.borderColor = 'transparent'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                backgroundColor: '#FF5722',
+                borderRadius: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '24px',
+                color: 'white',
+                flexShrink: 0
+              }}>
+                <SaveOutlined />
+              </div>
+              <div style={{ flex: 1 }}>
+                <h4 style={{ 
+                  margin: '0 0 8px 0', 
+                  fontSize: '16px', 
+                  fontWeight: 'bold',
+                  color: '#333'
+                }}>
+                  Build from Your Saves
+                </h4>
+                <p style={{ 
+                  margin: 0, 
+                  fontSize: '14px', 
+                  color: '#666',
+                  lineHeight: '1.4'
+                }}>
+                  Add your travel details and pick from your saved list to instantly build a personalized itinerary
+                </p>
+              </div>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                backgroundColor: 'rgba(255, 87, 34, 0.1)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#FF5722',
+                fontSize: '12px',
+                flexShrink: 0
+              }}>
+                <BookOutlined />
+              </div>
+            </div>
+          </div>
+
+          {/* Try High AI Option */}
+          <div
+            onClick={() => handleSelectionOption('ai')}
+            style={{
+              backgroundColor: '#f8f9fa',
+              borderRadius: '20px',
+              padding: '20px',
+              cursor: 'pointer',
+              border: '2px solid transparent',
+              transition: 'all 0.3s ease',
+              position: 'relative'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e9ecef'
+              e.currentTarget.style.borderColor = '#FF5722'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f8f9fa'
+              e.currentTarget.style.borderColor = 'transparent'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                backgroundColor: '#1890ff',
+                borderRadius: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '24px',
+                color: 'white',
+                flexShrink: 0
+              }}>
+                <RobotOutlined />
+              </div>
+              <div style={{ flex: 1 }}>
+                <h4 style={{ 
+                  margin: '0 0 8px 0', 
+                  fontSize: '16px', 
+                  fontWeight: 'bold',
+                  color: '#333'
+                }}>
+                  Try High AI 🚀
+                </h4>
+                <p style={{ 
+                  margin: 0, 
+                  fontSize: '14px', 
+                  color: '#666',
+                  lineHeight: '1.4'
+                }}>
+                  Turn any YouTube video or Instagram Reel into a custom travel plan - just share the link and let AI do the magic
+                </p>
+              </div>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                backgroundColor: 'rgba(24, 144, 255, 0.1)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#1890ff',
+                fontSize: '12px',
+                flexShrink: 0
+              }}>
+                <LinkOutlined />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
 
       {/* Enhanced Create/Edit Trip Modal */}
       <Modal

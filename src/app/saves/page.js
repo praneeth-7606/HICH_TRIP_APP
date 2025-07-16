@@ -102,7 +102,6 @@ const SavesPage = () => {
       isSaved: true,
       description: 'Experience traditional Japanese tea culture.'
     },
-    
     {
       id: 7,
       title: 'Historical Walking Tour',
@@ -115,6 +114,38 @@ const SavesPage = () => {
     }
   ]
 
+  // FIXED: Added missing tripItems array
+  const tripItems = [
+    {
+      id: 1,
+      title: 'Weekend in Paris',
+      dates: 'Dec 15-18, 2024',
+      image: 'https://c4.wallpaperflare.com/wallpaper/132/818/377/eiffel-tower-cityscape-city-landmark-wallpaper-preview.jpg',
+      status: 'upcoming'
+    },
+    {
+      id: 2,
+      title: 'Tokyo Adventure',
+      dates: 'Jan 5-12, 2025',
+      image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=300&fit=crop&crop=center&auto=format&q=80',
+      status: 'planning'
+    },
+    {
+      id: 3,
+      title: 'Bali Getaway',
+      dates: 'Nov 20-25, 2024',
+      image: 'https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=400&h=300&fit=crop&crop=center&auto=format&q=80',
+      status: 'completed'
+    },
+    {
+      id: 4,
+      title: 'New York City',
+      dates: 'Oct 10-15, 2024',
+      image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=400&h=300&fit=crop&crop=center&auto=format&q=80',
+      status: 'completed'
+    }
+  ]
+
   const filteredItems = activeFilter === 'all' 
     ? savedItems 
     : savedItems.filter(item => item.category === activeFilter)
@@ -122,7 +153,7 @@ const SavesPage = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab)
     if (tab === 'trips') {
-      router.push('/my-trips')
+      router.push('/saves')
     }
   }
 
@@ -250,89 +281,127 @@ const SavesPage = () => {
             </div>
           </div>
 
-          {/* Saves Grid */}
+          {/* Saves Grid - IMPROVED: Better image filling */}
           <div className="px-3">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {filteredItems.map((item) => (
                 <Card
                   key={item.id}
                   style={{
-                    borderRadius: '16px',
+                    borderRadius: '20px',
                     overflow: 'hidden',
                     border: 'none',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                    background: '#FFFFFF'
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                    background: '#FFFFFF',
+                    padding: '0'
                   }}
                   bodyStyle={{ padding: '0' }}
                 >
-                  <div style={{ position: 'relative' }}>
+                  <div style={{ 
+                    position: 'relative',
+                    width: '100%',
+                    height: '240px',
+                    overflow: 'hidden'
+                  }}>
+                    {/* IMPROVED: Better image styling to fill card completely */}
                     <img
                       src={item.image}
                       alt={item.title}
                       style={{ 
                         width: '100%', 
-                        height: '200px',
-                        objectFit: 'cover'
+                        height: '100%',
+                        objectFit: 'cover',
+                        objectPosition: 'center',
+                        transition: 'transform 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.05)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)'
                       }}
                     />
                     
-                    {/* Rating Badge */}
+                    {/* Gradient overlay for better text readability */}
                     <div style={{
                       position: 'absolute',
-                      top: '12px',
-                      right: '12px',
-                      background: 'rgba(0,0,0,0.7)',
-                      borderRadius: '12px',
-                      padding: '4px 8px',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.8) 100%)'
+                    }} />
+                    
+                    {/* Rating Badge - IMPROVED: Better styling */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '16px',
+                      right: '16px',
+                      background: 'rgba(255,255,255,0.95)',
+                      backdropFilter: 'blur(10px)',
+                      borderRadius: '16px',
+                      padding: '6px 12px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px'
+                      gap: '6px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
                     }}>
-                      <StarFilled style={{ color: '#FFD700', fontSize: '12px' }} />
+                      <StarFilled style={{ color: '#FFD700', fontSize: '14px' }} />
                       <span style={{ 
-                        fontSize: '12px', 
-                        fontWeight: '500',
-                        color: '#FFFFFF'
+                        fontSize: '13px', 
+                        fontWeight: '600',
+                        color: '#333'
                       }}>
                         {item.rating}
                       </span>
                     </div>
 
-                    {/* Save Button */}
+                    {/* Save Button - IMPROVED: Better styling */}
                     <Button
                       icon={<HeartFilled />}
                       style={{
                         position: 'absolute',
-                        bottom: '12px',
-                        right: '12px',
+                        top: '16px',
+                        left: '16px',
                         borderRadius: '50%',
-                        width: '40px',
-                        height: '40px',
-                        background: '#FF4800',
+                        width: '44px',
+                        height: '44px',
+                        background: 'rgba(255, 72, 0, 0.9)',
+                        backdropFilter: 'blur(10px)',
                         border: 'none',
                         color: '#FFFFFF',
-                        fontSize: '16px',
+                        fontSize: '18px',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        boxShadow: '0 4px 12px rgba(255, 72, 0, 0.3)',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.1)'
+                        e.target.style.background = '#FF4800'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)'
+                        e.target.style.background = 'rgba(255, 72, 0, 0.9)'
                       }}
                     />
 
-                    {/* Title and Location Overlay */}
+                    {/* Title and Location Overlay - IMPROVED: Better positioning */}
                     <div style={{
                       position: 'absolute',
                       bottom: '0',
                       left: '0',
                       right: '0',
-                      background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
-                      padding: '40px 16px 16px 16px',
+                      padding: '20px',
                       color: '#FFFFFF'
                     }}>
                       <h6 style={{ 
-                        fontWeight: '600', 
-                        margin: '0 0 4px 0', 
-                        fontSize: '16px',
-                        color: '#FFFFFF'
+                        fontWeight: '700', 
+                        margin: '0 0 6px 0', 
+                        fontSize: '18px',
+                        color: '#FFFFFF',
+                        textShadow: '0 2px 4px rgba(0,0,0,0.5)'
                       }}>
                         {item.title}
                       </h6>
@@ -342,9 +411,10 @@ const SavesPage = () => {
                         margin: '0',
                         display: 'flex',
                         alignItems: 'center',
-                        opacity: 0.9
+                        opacity: 0.95,
+                        textShadow: '0 1px 2px rgba(0,0,0,0.5)'
                       }}>
-                        <span style={{ marginRight: '4px' }}>📍</span>
+                        <span style={{ marginRight: '6px', fontSize: '16px' }}>📍</span>
                         {item.location}
                       </p>
                     </div>
@@ -355,7 +425,7 @@ const SavesPage = () => {
           </div>
         </>
       ) : (
-        /* Trips List */
+        /* Trips List - FIXED: Now using the defined tripItems */
         <div className="px-3">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {tripItems.map((trip) => (
@@ -369,9 +439,18 @@ const SavesPage = () => {
                   borderRadius: '12px',
                   border: '1px solid #F0F0F0',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
                 }}
                 onClick={() => router.push('/mytrips')}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)'
+                  e.target.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)'
+                }}
               >
                 <img
                   src={trip.image}
@@ -379,7 +458,7 @@ const SavesPage = () => {
                   style={{
                     width: '60px',
                     height: '60px',
-                    borderRadius: '8px',
+                    borderRadius: '12px',
                     objectFit: 'cover',
                     marginRight: '16px'
                   }}
@@ -417,7 +496,6 @@ const SavesPage = () => {
 }
 
 export default SavesPage
-
 // 'use client'
 
 // import React, { useState } from 'react'

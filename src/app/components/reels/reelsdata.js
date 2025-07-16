@@ -45,16 +45,16 @@
 //     }
 //   },
 //   {
-//     id: 4,
-//     videoUrl: "https://player.vimeo.com/external/381277340.sd.mp4?s=1c29b5d5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5&profile_id=139",
-//     thumbnail: "https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=400&h=600&fit=crop",
-//     title: "Santorini Sunset",
-//     location: "Santorini, Greece",
-//     likes: "5.8K",
-//     comments: "287",
-//     shares: "142",
-//     description: "Most beautiful sunset in the world! 🌅 Santorini never fails to amaze. Book your trip now! #Santorini #Greece",
-//     creator: {
+    // id: 4,
+    // videoUrl: "https://player.vimeo.com/external/381277340.sd.mp4?s=1c29b5d5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5&profile_id=139",
+    // thumbnail: "https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=400&h=600&fit=crop",
+    // title: "Santorini Sunset",
+    // location: "Santorini, Greece",
+    // likes: "5.8K",
+    // comments: "287",
+    // shares: "142",
+    // description: "Most beautiful sunset in the world! 🌅 Santorini never fails to amaze. Book your trip now! #Santorini #Greece",
+    // creator: {
 //       name: "@sunset_chaser",
 //       avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
 //     }
@@ -235,5 +235,58 @@ export const reelsData = [
         price: "$120/night"
       }
     ]
-  }
+  },
+  {
+    id: 4,
+    title: "Santorini Sunset",
+    location: "Hawaii",
+    username: "@travelwithemma",
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b131?w=40&h=40&fit=crop&crop=face",
+    video: "https://player.vimeo.com/external/381277340.sd.mp4?s=1c29b5d5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5&profile_id=139",
+    likes: 1200,
+    comments: 89,
+    shares: 45,
+    isLiked: false,
+    description: "Amazing backpacking adventure through the beautiful islands of Hawaii! 🌺",
+    tags: ["adventure", "hawaii", "backpacking", "nature"],
+    savedItems: [
+      {
+        id: 1,
+        title: "Hotel Hyatt",
+        location: "Hawaii",
+        rating: 4.5,
+        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop",
+        type: "hotel",
+        price: "$150/night"
+      },
+      {
+        id: 2,
+        title: "Scuba Diving",
+        location: "Hawaii", 
+        rating: 4.5,
+        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=300&h=200&fit=crop",
+        type: "activity",
+        price: "$85/person"
+      },
+      {
+        id: 3,
+        title: "Tropical Beach Resort",
+        location: "Hawaii",
+        rating: 4.7,
+        image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=300&h=200&fit=crop",
+        type: "resort",
+        price: "$200/night"
+      },
+      {
+        id: 4,
+        title: "Helicopter Tour",
+        location: "Hawaii",
+        rating: 4.9,
+        image: "https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=300&h=200&fit=crop",
+        type: "activity",
+        price: "$120/person"
+      }
+    ]
+  },
+  
 ];

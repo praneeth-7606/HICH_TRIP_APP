@@ -1,211 +1,4 @@
-// "use client"
 
-// import React, { useState, useEffect } from 'react';
-// import { ConfigProvider } from 'antd';
-// import TravelDiscoveryPage from './components/travel-discovery/traveldiscoverypage';
-// import DestinationPage from './components/destination/destinationpage';
-// // import DestinationCard from './components/cards/destinationcard';
-// import HichOnboardingFlow from './components/onboarding/hichonboarding';
-// import TripPlanningApp from './components/tripplanninginterface';
-// import ReelsPage from './components/reels/reelspage';
-// import 'antd/dist/reset.css';
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// import './styles/globals.css';
-
-// // Updated theme to match HICH branding
-// const theme = {
-//   token: {
-//     colorPrimary: '#FA8C16', // HICH orange color
-//     colorBgContainer: '#FFFFFF',
-//     borderRadius: 15,
-//     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-//   },
-//   components: {
-//     Button: {
-//       borderRadius: 20,
-//       fontWeight: 500,
-//     },
-//     Card: {
-//       borderRadius: 15,
-//       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-//     },
-//     Input: {
-//       borderRadius: 25,
-//       fontSize: 14,
-//     },
-//     Progress: {
-//       strokeColor: '#FA8C16',
-//     },
-//     Modal: {
-//       borderRadius: 15,
-//     },
-//   },
-// };
-
-// // Storage utility functions
-// const STORAGE_KEYS = {
-//   ONBOARDING_COMPLETED: 'hich_onboarding_completed',
-//   USER_PREFERENCES: 'hich_user_preferences',
-//   LAST_VISIT: 'hich_last_visit'
-// };
-
-// const storePreferences = (preferences) => {
-//   try {
-//     localStorage.setItem(STORAGE_KEYS.USER_PREFERENCES, JSON.stringify(preferences));
-//     localStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETED, 'true');
-//     localStorage.setItem(STORAGE_KEYS.LAST_VISIT, new Date().toISOString());
-//     return true;
-//   } catch (error) {
-//     console.error('Error storing preferences:', error);
-//     return false;
-//   }
-// };
-
-// const getStoredPreferences = () => {
-//   try {
-//     const preferences = localStorage.getItem(STORAGE_KEYS.USER_PREFERENCES);
-//     return preferences ? JSON.parse(preferences) : null;
-//   } catch (error) {
-//     console.error('Error getting stored preferences:', error);
-//     return null;
-//   }
-// };
-
-// const hasCompletedOnboarding = () => {
-//   return localStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETED) === 'true';
-// };
-
-// const clearAllData = () => {
-//   Object.values(STORAGE_KEYS).forEach(key => {
-//     localStorage.removeItem(key);
-//   });
-// };
-
-// function App() {
-//   const [showReels, setShowReels] = useState(false);
-//   const [showOnboarding, setShowOnboarding] = useState(true);
-//   const [userPreferences, setUserPreferences] = useState(null);
-//   const [isLoading, setIsLoading] = useState(true);
-
-
-
-//   useEffect(() => {
-//   // Check if user has completed onboarding (client-side only)
-//   const checkOnboardingStatus = () => {
-//     try {
-//       const completed = localStorage.getItem('hich_onboarding_completed');
-//       const preferences = localStorage.getItem('hich_user_preferences');
-      
-//       if (completed === 'true' && preferences) {
-//         setShowOnboarding(false);
-//         setUserPreferences(JSON.parse(preferences));
-//       }
-//     } catch (error) {
-//       console.error('Error checking onboarding status:', error);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   checkOnboardingStatus();
-// }, []);
-//   const handleOnboardingComplete = (preferences) => {
-//   try {
-//     setUserPreferences(preferences);
-//     setShowOnboarding(false);
-//     setShowReels(true); // Show reels after onboarding
-    
-//     console.log('User completed onboarding with preferences:', preferences);
-//   } catch (error) {
-//     console.error('Error saving preferences:', error);
-//   }
-// };
-// const handleReelsClose = () => {
-//   setShowReels(false);
-//   setShowOnboarding(true);
-// };
-// const handleBack = () => {
-//     console.log('Navigate back');
-//     // Add your navigation logic here
-//   };
-
-// const handleContinueToTrips = () => {
-//   setShowReels(false);
-// };
-
-
-//   const resetOnboarding = () => {
-//   try {
-//     localStorage.removeItem('hich_onboarding_completed');
-//     localStorage.removeItem('hich_user_preferences');
-//   } catch (error) {
-//     console.error('Error clearing data:', error);
-//   }
-//   setShowOnboarding(true);
-//   setUserPreferences(null);
-// };
-
-//   // Loading screen while checking onboarding status
-//   if (isLoading) {
-//     return (
-//       <div style={{
-//         display: 'flex',
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//         minHeight: '100vh',
-//         background: 'linear-gradient(135deg, #FDF2E9 0%, #FFE0B2 100%)',
-//         flexDirection: 'column'
-//       }}>
-//         <div style={{
-//           fontSize: '48px',
-//           fontWeight: '900',
-//           color: '#FA8C16',
-//           letterSpacing: '2px',
-//           marginBottom: '20px'
-//         }}>
-//           HICH
-//         </div>
-//         <div style={{
-//           width: '40px',
-//           height: '40px',
-//           border: '3px solid #FA8C16',
-//           borderTop: '3px solid transparent',
-//           borderRadius: '50%',
-//           animation: 'spin 1s linear infinite'
-//         }}></div>
-//         <style>{`
-//           @keyframes spin {
-//             0% { transform: rotate(0deg); }
-//             100% { transform: rotate(360deg); }
-//           }
-//         `}</style>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="App">
-//     {showOnboarding ? (
-//       <HichOnboardingFlow onComplete={handleOnboardingComplete} />
-//     ) : showReels ? (
-//       <ReelsPage 
-//         onClose={handleReelsClose}
-//         onContinueToTrips={handleContinueToTrips}
-//       />
-//     ) : (
-//        <TravelDiscoveryPage />
-//     )}
-//   </div>
-//   );
-// }
-
-// export default App;
-
-
-
-// ============================================
-// SOLUTION 1: Fix App.js for Next.js SSR
-// ============================================
 
 "use client"
 
@@ -258,7 +51,8 @@ const STORAGE_KEYS = {
   ONBOARDING_COMPLETED: 'hich_onboarding_completed',
   USER_PREFERENCES: 'hich_user_preferences',
   LAST_VISIT: 'hich_last_visit',
-  APP_STATE: 'hich_app_state'
+  APP_STATE: 'hich_app_state',
+  HAS_REACHED_REELS: 'hich_has_reached_reels' // CHANGE 1: Added new storage key
 };
 
 // Safe localStorage functions that work with SSR
@@ -315,6 +109,15 @@ const hasCompletedOnboarding = () => {
   return safeLocalStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETED) === 'true';
 };
 
+// CHANGE 2: Added functions to manage reels access state
+const hasReachedReels = () => {
+  return safeLocalStorage.getItem(STORAGE_KEYS.HAS_REACHED_REELS) === 'true';
+};
+
+const setHasReachedReels = () => {
+  return safeLocalStorage.setItem(STORAGE_KEYS.HAS_REACHED_REELS, 'true');
+};
+
 const clearAllData = () => {
   Object.values(STORAGE_KEYS).forEach(key => {
     safeLocalStorage.removeItem(key);
@@ -336,14 +139,15 @@ const getStoredAppState = () => {
 };
 
 function App() {
-  // FIXED: Initialize state safely for SSR
+  // CHANGE 3: Added hasReachedReels to the initial state
   const [appState, setAppState] = useState({
     showReels: false,
     showOnboarding: true,
     userPreferences: null,
     currentView: 'onboarding',
     isLoading: true,
-    isClient: false // Add this to track client-side mounting
+    isClient: false,
+    hasReachedReels: false // Added this state
   });
 
   const [selectedItem, setSelectedItem] = useState(null);
@@ -357,7 +161,12 @@ function App() {
     // Check stored state only after client mount
     const storedState = getStoredAppState();
     if (storedState) {
-      setAppState(prev => ({ ...prev, ...storedState, isClient: true }));
+      setAppState(prev => ({ 
+        ...prev, 
+        ...storedState, 
+        isClient: true,
+        hasReachedReels: false // Always start with false for current session
+      }));
       return;
     }
 
@@ -374,14 +183,16 @@ function App() {
             userPreferences: preferences,
             currentView: 'discovery',
             isLoading: false,
-            isClient: true
+            isClient: true,
+            hasReachedReels: false // Always start with false for current session
           }));
         } else {
           setAppState(prev => ({
             ...prev,
             currentView: 'onboarding',
             isLoading: false,
-            isClient: true
+            isClient: true,
+            hasReachedReels: false // Always start with false for current session
           }));
         }
       } catch (error) {
@@ -390,7 +201,8 @@ function App() {
           ...prev,
           currentView: 'onboarding',
           isLoading: false,
-          isClient: true
+          isClient: true,
+          hasReachedReels: false // Always start with false for current session
         }));
       }
     };
@@ -410,12 +222,16 @@ function App() {
       const stored = storePreferences(preferences);
       
       if (stored) {
+        // CHANGE 5: Set hasReachedReels to true and store it when going to reels
+        setHasReachedReels();
+        
         setAppState(prev => ({
           ...prev,
           userPreferences: preferences,
           showOnboarding: false,
           showReels: true,
-          currentView: 'reels'
+          currentView: 'reels',
+          hasReachedReels: true // Update state
         }));
         
         console.log('User completed onboarding with preferences:', preferences);
@@ -477,10 +293,16 @@ function App() {
   };
 
   const handleShowReelsFromDiscovery = () => {
+    // CHANGE 6: Set hasReachedReels to true when accessing reels from discovery
+    if (!appState.hasReachedReels) {
+      setHasReachedReels();
+    }
+    
     setAppState(prev => ({
       ...prev,
       currentView: 'reels',
-      showReels: true
+      showReels: true,
+      hasReachedReels: true // Update state
     }));
   };
 
@@ -496,7 +318,8 @@ function App() {
       userPreferences: null,
       currentView: 'onboarding',
       isLoading: false,
-      isClient: true
+      isClient: true,
+      hasReachedReels: false // Reset this state too
     });
     setSelectedItem(null);
     setTaggedItems([]);
@@ -624,6 +447,32 @@ function App() {
         
         {appState.currentView === 'discovery' && (
           <EnhancedTravelDiscoveryPage />
+        )}
+
+        {/* CHANGE 7: Conditionally render footer only after user has reached reels */}
+        {appState.hasReachedReels && (
+          <div style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '80px',
+            background: 'linear-gradient(135deg, #FF973D 0%, #FFB366 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.1)',
+            zIndex: 1000
+          }}>
+            <div style={{
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: '600',
+              textAlign: 'center'
+            }}>
+              Welcome to HICH - Your Travel Companion
+            </div>
+          </div>
         )}
       </div>
     </ConfigProvider>

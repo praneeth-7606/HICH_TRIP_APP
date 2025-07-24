@@ -43,7 +43,7 @@ const ExploreByDestinations = ({ destinations }) => {
   }, [destinations, activeFilter]);
 
   return (
-    <div style={{ marginBottom: '32px' }}>
+    <div style={{ marginBottom: '72px' }}>
       <h3 style={{
         margin: '0 0 20px 0',
         fontSize: 'clamp(18px, 4.5vw, 22px)',
@@ -130,7 +130,7 @@ const ExploreByDestinations = ({ destinations }) => {
               borderRadius: '16px',
               overflow: 'hidden',
               position: 'relative',
-              aspectRatio: '1',
+              aspectRatio: '3/4',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               boxShadow: '0 4px 12px rgba(0,0,0,0.1)'

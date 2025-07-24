@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, progress = 25 }) => {
+const PurposeScreen = ({ onNext, onBack, selectedPreferences, onSelection, progress = 100 }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -8,11 +8,9 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
   }, []);
 
   const options = [
-    { id: 'beach', label: 'I am a Beach person', icon: '🏖️' },
-    { id: 'mountains', label: 'I love Mountains', icon: '⛰️' },
-    { id: 'offbeat', label: 'Something offbeats', icon: '🧭' },
-    { id: 'spiritual', label: 'Spiritual Travel', icon: '🏛️' },
-    { id: 'surprise', label: 'Surprise Me', icon: '✨' }
+    { id: 'planning', label: "I'm planning my next trip", icon: '✈️' },
+    { id: 'exploring', label: 'Just exploring for travel inspiration', icon: '🔍' },
+    { id: 'saving', label: 'I want to save places & build my itinerary', icon: '📝' }
   ];
 
   return (
@@ -30,7 +28,7 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
       {/* Status Bar Space */}
       <div style={{ height: '50px' }}></div>
 
-      {/* Enhanced Header with Back Button and Progress */}
+      {/* Enhanced Header */}
       <div style={{
         padding: '16px 20px',
         display: 'flex',
@@ -53,18 +51,15 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            transform: mounted ? 'scale(1)' : 'scale(0.8)'
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
           }}
           onMouseEnter={(e) => {
             e.target.style.background = 'rgba(255, 255, 255, 1)';
             e.target.style.transform = 'scale(1.05)';
-            e.target.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)';
           }}
           onMouseLeave={(e) => {
             e.target.style.background = 'rgba(255, 255, 255, 0.9)';
             e.target.style.transform = 'scale(1)';
-            e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
           }}
         >
           ←
@@ -74,8 +69,7 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
           height: '6px',
           background: 'rgba(255, 151, 61, 0.2)',
           borderRadius: '3px',
-          overflow: 'hidden',
-          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+          overflow: 'hidden'
         }}>
           <div style={{
             width: `${progress}%`,
@@ -83,7 +77,8 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
             background: 'linear-gradient(90deg, #FF973D 0%, #FFB366 100%)',
             borderRadius: '3px',
             transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: '0 0 10px rgba(255, 151, 61, 0.5)'
+            boxShadow: '0 0 10px rgba(255, 151, 61, 0.5)',
+            animation: progress === 100 ? 'completed 0.5s ease-in-out' : 'none'
           }} />
         </div>
       </div>
@@ -95,7 +90,7 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
         display: 'flex',
         flexDirection: 'column'
       }}>
-        {/* Enhanced Header Text */}
+        {/* Header Text */}
         <div style={{
           textAlign: 'center',
           marginBottom: '40px',
@@ -105,32 +100,30 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
           <h3 style={{
             fontSize: '16px',
             fontWeight: '500',
-  color: '#000000d6',
-            margin: '0 0 16px 0',
-            letterSpacing: '0.3px'
+  color: '#000000',
+            margin: '0 0 16px 0'
           }}>
             Let's Personalize ahead for you
           </h3>
           <h2 style={{
   fontSize: '24px',
   fontWeight: '500',
-  color: '#000000d6',
+  color: '#000000',
   margin: '0 0 8px 0',
   lineHeight: '1.2'
 }}>
-  What's your travel vibe?
-</h2>
+            What brings you to Hich today
+          </h2>
           <p style={{
             fontWeight: '500',
-  color: '#000000d6',
-            margin: 0,
-            opacity: 0.8
+  color: '#000000',
+            margin: 0
           }}>
             (Select one or multiple)
           </p>
         </div>
 
-        {/* Enhanced Options */}
+        {/* Options */}
         <div style={{
           flex: 1,
           display: 'flex',
@@ -141,17 +134,17 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
           {options.map((option, index) => (
             <button
               key={option.id}
-              onClick={() => onSelection('travelVibe', option.id)}
+              onClick={() => onSelection('purpose', option.id)}
               style={{
                 width: '100%',
                 padding: '20px 24px',
-                border: selectedPreferences?.travelVibe?.includes(option.id) 
-                ? '2px solid #FF973D' 
-                : '1px solid #E0E0E0',
+                border: selectedPreferences?.purpose?.includes(option.id) 
+                  ? '2px solid #FF973D' 
+                  : '1px solid rgba(240, 240, 240, 0.8)',
                 borderRadius: '16px',
-                background: selectedPreferences?.travelVibe?.includes(option.id) 
-                ? '#FFF4E6' 
-                : '#FFFFFF',
+                background: selectedPreferences?.purpose?.includes(option.id) 
+                  ? 'linear-gradient(135deg, rgba(255, 151, 61, 0.1) 0%, rgba(255, 179, 102, 0.1) 100%)' 
+                  : 'rgba(255, 255, 255, 0.9)',
                 cursor: 'pointer',
                 fontSize: '16px',
                 textAlign: 'left',
@@ -159,14 +152,17 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
                 alignItems: 'center',
                 gap: '16px',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                color: '#000000',
+                color: '#262626',
                 fontWeight: '500',
+                boxShadow: selectedPreferences?.purpose?.includes(option.id)
+                  ? '0 8px 24px rgba(255, 151, 61, 0.2)'
+                  : '0 4px 12px rgba(0,0,0,0.08)',
                 transform: `${mounted ? 'translateY(0)' : 'translateY(20px)'} scale(1)`,
                 transitionDelay: `${index * 0.1}s`,
                 backdropFilter: 'blur(10px)'
               }}
               onMouseEnter={(e) => {
-                if (!selectedPreferences?.travelVibe?.includes(option.id)) {
+                if (!selectedPreferences?.purpose?.includes(option.id)) {
                   e.target.style.background = 'rgba(255, 255, 255, 1)';
                   e.target.style.borderColor = 'rgba(255, 151, 61, 0.3)';
                   e.target.style.transform = 'translateY(-2px) scale(1.02)';
@@ -174,7 +170,7 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
                 }
               }}
               onMouseLeave={(e) => {
-                if (!selectedPreferences?.travelVibe?.includes(option.id)) {
+                if (!selectedPreferences?.purpose?.includes(option.id)) {
                   e.target.style.background = 'rgba(255, 255, 255, 0.9)';
                   e.target.style.borderColor = 'rgba(240, 240, 240, 0.8)';
                   e.target.style.transform = 'translateY(0) scale(1)';
@@ -189,7 +185,7 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
                 {option.icon}
               </span>
               <span style={{ flex: 1 }}>{option.label}</span>
-              {selectedPreferences?.travelVibe?.includes(option.id) && (
+              {selectedPreferences?.purpose?.includes(option.id) && (
                 <span style={{
                   color: '#FF973D',
                   fontSize: '18px',
@@ -202,7 +198,7 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
           ))}
         </div>
 
-        {/* Enhanced Next Button */}
+        {/* Finish Button */}
         <button
           onClick={onNext}
           style={{
@@ -220,7 +216,8 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
             width: '100%',
             textShadow: '0 1px 2px rgba(0,0,0,0.2)',
             letterSpacing: '0.5px',
-            transform: mounted ? 'translateY(0)' : 'translateY(20px)'
+            position: 'relative',
+            overflow: 'hidden'
           }}
           onMouseEnter={(e) => {
             e.target.style.background = 'linear-gradient(135deg, #E8840F 0%, #FF973D 100%)';
@@ -233,11 +230,17 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
             e.target.style.boxShadow = '0 8px 24px rgba(255, 151, 61, 0.4)';
           }}
         >
-          Next
+          <span style={{ position: 'relative', zIndex: 2 }}>
+            Next
+          </span>
         </button>
       </div>
 
       <style jsx>{`
+        @keyframes completed {
+          0% { transform: scaleX(0); }
+          100% { transform: scaleX(1); }
+        }
         @keyframes pulse {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.1); }
@@ -247,4 +250,4 @@ const TravelScreenVibe = ({ onNext, onBack, selectedPreferences, onSelection, pr
   );
 };
 
-export default TravelScreenVibe;
+export default PurposeScreen;
